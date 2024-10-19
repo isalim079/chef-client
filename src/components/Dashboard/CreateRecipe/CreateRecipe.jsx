@@ -12,6 +12,8 @@ import { FaFileUpload } from "react-icons/fa";
 const CreateRecipe = () => {
   const { user } = useContext(AuthContext);
 
+  const [loading, setLoading] = useState(false)
+
   const axiosPublic = useAxiosPublic();
 
   const {
@@ -35,6 +37,8 @@ const CreateRecipe = () => {
     const formData = new FormData();
     formData.append("image", imageFile);
 
+    setLoading(true)
+
     try {
       const res = await axios.post(image_hosting_api, formData);
 
@@ -50,10 +54,11 @@ const CreateRecipe = () => {
         };
 
         axiosPublic.post("/recipeFeed", recipeDetails).then((res) => {
-          console.log(res);
+          // console.log(res);
           toast.success("Recipe created successfully");
           reset();
           setContent("");
+          setLoading(false)
         });
       }
     } catch (error) {
@@ -112,7 +117,7 @@ const CreateRecipe = () => {
           {/* submit button */}
           <div>
             <button className="bg-dark-green py-3 w-full mt-4 text-white font-semibold rounded-md shadow-md">
-              Submit Recipe
+              {loading ? <p className="flex flex-row justify-center items-center gap-3"><span className="loading loading-dots loading-lg"></span></p> : "Submit"}
             </button>
           </div>
         </form>

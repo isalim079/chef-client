@@ -4,7 +4,7 @@ import React from "react";
 
 const DashboardPageLayout = ({ children }) => {
   return (
-    <div className="grid grid-cols-12 p-12 h-screen gap-10">
+    <div className="grid grid-cols-12 h-screen gap-10">
       <div className="col-span-2">
         <Sidebar />
       </div>
