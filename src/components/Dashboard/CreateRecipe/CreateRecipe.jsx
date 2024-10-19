@@ -1,17 +1,24 @@
-
 "use client";
+import { AuthContext } from "@/app/Context/AuthProvider";
+import useAxiosPublic from "@/lib/hooks/useAxiosPublic";
 import axios from "axios";
 import JoditEditor from "jodit-react";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { FaFileUpload } from "react-icons/fa";
 
 const CreateRecipe = () => {
+  const { user } = useContext(AuthContext);
+
+  const axiosPublic = useAxiosPublic();
+
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm();
 
@@ -30,7 +37,25 @@ const CreateRecipe = () => {
 
     try {
       const res = await axios.post(image_hosting_api, formData);
-      console.log(res);
+
+      if (res.data.success) {
+        const imageUrl = res.data.data.url;
+        const recipeDetails = {
+          image: imageUrl,
+          title: data.title,
+          recipe: content,
+          email: user.email,
+          name: user.displayName,
+          profileImg: user.photoURL,
+        };
+
+        axiosPublic.post("/recipeFeed", recipeDetails).then((res) => {
+          console.log(res);
+          toast.success("Recipe created successfully");
+          reset();
+          setContent("");
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -39,11 +64,14 @@ const CreateRecipe = () => {
   return (
     <div className="bg-primary-white p-14 shadow-md">
       <div className="max-w-[920px] mx-auto ">
-
         {/* title container */}
         <div className="mb-10">
-            <h1 className="text-4xl font-bold text-center uppercase text-dark-green">Create your recipe</h1>
-            <p className="text-center text-lg font-semibold">Let the world know your talent</p>
+          <h1 className="text-4xl font-bold text-center uppercase text-dark-green">
+            Create your recipe
+          </h1>
+          <p className="text-center text-lg font-semibold">
+            Let the world know your talent
+          </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="">
           {/* field 1 */}
@@ -52,15 +80,17 @@ const CreateRecipe = () => {
               className="border rounded-md p-2 w-full"
               type="text"
               placeholder="Title"
+              {...register("title")}
             />
           </div>
 
           {/* field 2 */}
           <div>
             <JoditEditor
+              className=""
               ref={editor}
               value={content}
-              onBlur={(newContent) => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
+              onBlur={(newContent) => setContent(newContent)}
               onChange={(newContent) => setContent(newContent)}
             />
           </div>
@@ -81,7 +111,9 @@ const CreateRecipe = () => {
 
           {/* submit button */}
           <div>
-            <button className="bg-dark-green py-3 w-full mt-4 text-white font-semibold rounded-md shadow-md">Submit Recipe</button>
+            <button className="bg-dark-green py-3 w-full mt-4 text-white font-semibold rounded-md shadow-md">
+              Submit Recipe
+            </button>
           </div>
         </form>
       </div>
@@ -89,4 +121,4 @@ const CreateRecipe = () => {
   );
 };
 
-export default dynamic(() => Promise.resolve(CreateRecipe), {ssr: false})
+export default dynamic(() => Promise.resolve(CreateRecipe), { ssr: false });
