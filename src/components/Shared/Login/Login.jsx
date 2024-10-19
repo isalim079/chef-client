@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import useAxiosPublic from "@/lib/hooks/useAxiosPublic";
 import { useContext } from "react";
 import { AuthContext } from "@/app/Context/AuthProvider";
+import { GoogleAuthProvider } from "firebase/auth";
 
 const Login = () => {
   const axiosPublic = useAxiosPublic();
@@ -33,13 +34,47 @@ const Login = () => {
 
     passwordLogIn(email, password)
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         toast.success("Login Successful");
         reset();
         // router.push('/')
         {
           path ? router.push(path) : router.push("/");
         }
+      })
+      .catch((err) => {
+        console.log(err);
+        const errorCode = err.code;
+        const errorMessage = err.message;
+        console.log(errorCode, errorMessage.split("/"));
+        toast.error(`${errorMessage.split("/")[1]}`);
+      });
+  };
+
+  const provider = new GoogleAuthProvider();
+  const handleGoogle = () => {
+    googleLogInPopup(provider)
+      .then((res) => {
+        // console.log(res);
+        const userData = {
+          name: res.user.displayName,
+          email: res.user.email,
+          role: "user",
+          image: res.user.photoURL
+        };
+
+        axiosPublic.post("/register", userData).then((res) => {
+          // console.log(res);
+          if (res.data.insertedId === null) {
+            toast.success(`Welcome back`);
+          } else {
+            toast.success(`Welcome to Chef`);
+          }
+          reset();
+          {
+            path ? router.push(path) : router.push("/");
+          }
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -140,7 +175,7 @@ const Login = () => {
               {/* Social Icon */}
               <div>
                 <div className="flex flex-row justify-center items-center mt-5 gap-10">
-                  <button className="bg-primary-white p-2 rounded-full">
+                  <button onClick={handleGoogle} className="bg-primary-white p-2 rounded-full">
                     <FaGoogle className="text-2xl" />
                   </button>
                   <button className="bg-primary-white p-2 rounded-full">
