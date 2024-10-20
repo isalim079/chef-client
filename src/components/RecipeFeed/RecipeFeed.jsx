@@ -168,11 +168,16 @@ const RecipeFeed = () => {
 
                         {/* Up vote */}
                         <div>
-                          <button className="border border-dark-green p-2 rounded-full">
+                          <button className={`border border-dark-green p-2 rounded-full ${(item.upvote.find((email) => email.email === user?.email && email.upvote === true) ? 'bg-dark-green text-primary-white' : '')}`}>
                             <BiLike />
                           </button>
                           <p className="text-base text-center mt-1 font-semibold">
-                            {item.upvote}
+                            {item.upvote
+                              ? item.upvote.filter(
+                                  (vote) => vote.upvote === true
+                                ).length
+                              : 0}
+                              {console.log((item.upvote.find((email) => email.email === user.email && email.upvote === true)))}
                           </p>
                         </div>
 
