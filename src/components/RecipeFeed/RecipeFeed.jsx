@@ -34,7 +34,7 @@ const RecipeFeed = () => {
   }, []);
 
   const handleRatingSubmit = async (item) => {
-    console.log(item);
+    // console.log(item);
     if (user) {
       const ratingsData = {
         email: user.email,
@@ -46,6 +46,36 @@ const RecipeFeed = () => {
         .then((res) => {
           if (res.data.success) {
             toast.success("Successfully rated");
+            getAllRecipe();
+          }
+        });
+    }
+  };
+
+  const handleUpvoteSubmit = async (item) => {
+    // console.log(item.upvote);
+
+    const findUserUpvote = item.upvote.find(
+      (item) => item.email === user.email
+    );
+
+    if (user) {
+      const upVotesData = {
+        email: user.email,
+        upvote: findUserUpvote ? !findUserUpvote.upvote : true,
+      };
+
+      await axiosPublic
+        .patch(`/allRecipes/${item._id}/upvote`, upVotesData)
+        .then((res) => {
+          if (res.data.success) {
+            toast.success(
+              `${
+                upVotesData.upvote === true
+                  ? "Liked the recipe!"
+                  : "Like removed"
+              }`
+            );
             getAllRecipe();
           }
         });
@@ -69,7 +99,7 @@ const RecipeFeed = () => {
               <div className="mb-20 ml-auto max-w-40">
                 <p className="mb-2 font-semibold">Sort by:</p>
                 <div className=" border border-dark-green  p-2 rounded-md shadow-md">
-                  <select value="rating" className="w-full">
+                  <select defaultValue="rating" className="w-full">
                     <option value="rating">Rating</option>
                     <option value="name">Name</option>
                     <option value="myPost">My Post</option>
@@ -168,7 +198,18 @@ const RecipeFeed = () => {
 
                         {/* Up vote */}
                         <div>
-                          <button className={`border border-dark-green p-2 rounded-full ${(item.upvote.find((email) => email.email === user?.email && email.upvote === true) ? 'bg-dark-green text-primary-white' : '')}`}>
+                          <button
+                            onClick={() => handleUpvoteSubmit(item)}
+                            className={`border border-dark-green p-2 rounded-full ${
+                              item.upvote.find(
+                                (email) =>
+                                  email.email === user?.email &&
+                                  email.upvote === true
+                              )
+                                ? "bg-dark-green text-primary-white"
+                                : ""
+                            }`}
+                          >
                             <BiLike />
                           </button>
                           <p className="text-base text-center mt-1 font-semibold">
@@ -177,7 +218,6 @@ const RecipeFeed = () => {
                                   (vote) => vote.upvote === true
                                 ).length
                               : 0}
-                              {console.log((item.upvote.find((email) => email.email === user.email && email.upvote === true)))}
                           </p>
                         </div>
 
