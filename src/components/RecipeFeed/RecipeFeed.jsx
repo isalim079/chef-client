@@ -4,12 +4,20 @@ import Loading from "../shared/Loading/Loading";
 import Image from "next/image";
 import { BiDislike, BiLike } from "react-icons/bi";
 import { LiaCommentSolid } from "react-icons/lia";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { FaStar } from "react-icons/fa";
+import Rating from "react-rating";
+import { IoIosStarOutline } from "react-icons/io";
+import { IoMdStar } from "react-icons/io";
+import { AuthContext } from "@/app/Context/AuthProvider";
 
 const RecipeFeed = () => {
   const [allRecipeData, setAllRecipeData] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/allRecipes`)
@@ -20,7 +28,16 @@ const RecipeFeed = () => {
       });
   }, []);
 
-  // console.log(allRecipeData);
+  const handleRatingSubmit = async (item) => {
+    console.log(item);
+    if (user) {
+      const ratingsData = {
+        email: user.email,
+        ratings: rating,
+      };
+      console.log(ratingsData);
+    }
+  };
 
   return (
     <div className="pt-28">
@@ -73,6 +90,64 @@ const RecipeFeed = () => {
                     {/* Micro elements */}
                     <div>
                       <div className="text-2xl gap-10 flex justify-end">
+                        {/* Rating */}
+                        <div>
+                          <button
+                            className="border border-primary-orange p-2 rounded-full"
+                            onClick={() =>
+                              document.getElementById(`${item._id}`).showModal()
+                            }
+                          >
+                            <FaStar className="text-primary-orange" />
+                          </button>
+                          <p className="text-base text-center mt-1 font-semibold">
+                            {item.ratingsData.length !== 0
+                              ? (
+                                  item.ratingsData.reduce(
+                                    (sum, rating) => sum + rating.ratings,
+                                    0
+                                  ) / item.ratingsData.length
+                                ).toFixed(1)
+                              : 0}
+                          </p>
+
+                          {/* give rating */}
+                          <dialog id={`${item._id}`} className="modal">
+                            <div className="modal-box">
+                              <h3 className="font-bold text-lg">
+                                Rate this post
+                              </h3>
+                              <Rating
+                                initialRating={rating}
+                                onClick={(value) => setRating(value)}
+                                className="mt-5"
+                                emptySymbol={
+                                  <IoIosStarOutline className="text-primary-orange text-3xl mr-1" />
+                                }
+                                fullSymbol={
+                                  <IoMdStar className="text-primary-orange text-3xl mr-1" />
+                                }
+                              />
+                              <div className="modal-action">
+                                <div>
+                                  <button
+                                    onClick={() => handleRatingSubmit(item)}
+                                    className="bg-primary-orange px-4 py-2 rounded-md text-sm"
+                                  >
+                                    Submit
+                                  </button>
+                                </div>
+                                <form method="dialog">
+                                  {/* if there is a button in form, it will close the modal */}
+                                  <button className="bg-primary-orange px-4 py-2 rounded-md text-sm">
+                                    Close
+                                  </button>
+                                </form>
+                              </div>
+                            </div>
+                          </dialog>
+                        </div>
+
                         {/* Up vote */}
                         <div>
                           <button className="border border-dark-green p-2 rounded-full">
