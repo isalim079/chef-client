@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { FaInfo, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const MyRecipe = () => {
   const { user } = useContext(AuthContext);
@@ -17,26 +18,47 @@ const MyRecipe = () => {
 
   const [recipeData, setRecipeData] = useState([]);
 
+  const getMyRecipe = async () => {
+    if (user) {
+      await axiosPublic.get(`/myRecipe?email=${user?.email}`).then((res) => {
+        setRecipeData(res.data.data);
+        setLoading(false);
+      });
+    }
+  };
+
   useEffect(() => {
     try {
-      const getMyRecipe = async () => {
-        if (user) {
-          await axiosPublic
-            .get(`/myRecipe?email=${user?.email}`)
-            .then((res) => {
-              setRecipeData(res.data.data);
-              setLoading(false);
-            });
-        }
-      };
-
       getMyRecipe();
     } catch (error) {
       console.log(error);
     }
   }, []);
 
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete this post!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await axiosPublic.delete(`/myRecipe/${id}`);
+        if (res.status === 200) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Post has been deleted.",
+            icon: "success",
+          });
 
+          getMyRecipe();
+        }
+      }
+    });
+  };
 
   return (
     <div>
@@ -73,7 +95,10 @@ const MyRecipe = () => {
                     {/* action button container */}
                     <div className="flex items-center gap-3">
                       <div className="">
-                        <button className="border border-red-600 rounded-full p-2 hover:bg-red-600 transition-all duration-150 ease-in-out">
+                        <button
+                          className="border border-red-600 rounded-full p-2 hover:bg-red-600 transition-all duration-150 ease-in-out"
+                          onClick={() => handleDelete(item._id)}
+                        >
                           <FaTrash className="text-red-600 text-lg hover:text-white transition-all duration-150 ease-in-out" />
                         </button>
                       </div>
