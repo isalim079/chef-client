@@ -103,9 +103,44 @@ const MyRecipe = () => {
                         </button>
                       </div>
                       <div className="">
-                        <button className="border border-dark-green rounded-full p-2 hover:bg-dark-green transition-all duration-150 ease-in-out">
+                        <button
+                          onClick={() =>
+                            document.getElementById("my_modal_1").showModal()
+                          }
+                          className="border border-dark-green rounded-full p-2 hover:bg-dark-green transition-all duration-150 ease-in-out"
+                        >
                           <FaInfo className="text-dark-green text-lg hover:text-white transition-all duration-150 ease-in-out" />
                         </button>
+
+                        {/* recipe info container */}
+                        <dialog id="my_modal_1" className="modal">
+                          <div className=" bg-primary-white p-7 rounded-md">
+                            <h3 className="font-bold text-lg">{item.title}</h3>
+                            <Image
+                              className="mt-5"
+                              src={item.image}
+                              alt={item.title}
+                              width={80}
+                              height={80}
+                            />
+                            <div className="prose">
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: item.recipe,
+                                }}
+                              ></div>
+                            </div>
+
+                            <div className="modal-action">
+                              <form method="dialog">
+                                {/* if there is a button in form, it will close the modal */}
+                                <button className="bg-primary-orange px-4 py-2 rounded-md">
+                                  Close
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </dialog>
                       </div>
                     </div>
                   </div>
