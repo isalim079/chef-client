@@ -82,6 +82,36 @@ const RecipeFeed = () => {
     }
   };
 
+  const handleDownvoteSubmit = async (item) => {
+    // console.log(item.upvote);
+
+    const findUserDownvote = item.downvote.find(
+      (item) => item.email === user.email
+    );
+
+    if (user) {
+      const downVotesData = {
+        email: user.email,
+        downvote: findUserDownvote ? !findUserDownvote.downvote : true,
+      };
+
+      await axiosPublic
+        .patch(`/allRecipes/${item._id}/downvote`, downVotesData)
+        .then((res) => {
+          if (res.data.success) {
+            toast.success(
+              `${
+                downVotesData.downvote === true
+                  ? "Disliked the recipe!"
+                  : "Dislike removed"
+              }`
+            );
+            getAllRecipe();
+          }
+        });
+    }
+  };
+
   return (
     <div className="pt-28">
       <div className="max-w-screen-xl mx-auto font-poppins">
@@ -223,11 +253,26 @@ const RecipeFeed = () => {
 
                         {/* Down vote */}
                         <div>
-                          <button className="border border-dark-green p-2 rounded-full">
+                          <button
+                            onClick={() => handleDownvoteSubmit(item)}
+                            className={`border border-dark-green p-2 rounded-full ${
+                              item.downvote.find(
+                                (email) =>
+                                  email.email === user?.email &&
+                                  email.downvote === true
+                              )
+                                ? "bg-dark-green text-primary-white"
+                                : ""
+                            }`}
+                          >
                             <BiDislike />
                           </button>
                           <p className="text-base text-center mt-1 font-semibold">
-                            {item.downvote}
+                            {item.downvote
+                              ? item.downvote.filter(
+                                  (vote) => vote.downvote === true
+                                ).length
+                              : 0}
                           </p>
                         </div>
 
