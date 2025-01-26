@@ -112,6 +112,10 @@ const RecipeFeed = () => {
     }
   };
 
+  const handleCommentsSubmit = async (item) => {
+    console.log(item);
+  };
+
   return (
     <div className="pt-28">
       <div className="max-w-screen-xl mx-auto font-poppins">
@@ -278,12 +282,44 @@ const RecipeFeed = () => {
 
                         {/* Comments */}
                         <div>
-                          <button className="border border-dark-green p-2 rounded-full">
+                          <button
+                            onClick={() =>
+                              document
+                                .getElementById(`${item.email}`)
+                                .showModal()
+                            }
+                            className="border border-dark-green p-2 rounded-full"
+                          >
                             <LiaCommentSolid />
                           </button>
                           <p className="text-base text-center mt-1 font-semibold">
                             {item?.comments?.length}
                           </p>
+
+                          {/* Give comments */}
+                          <dialog id={`${item.email}`} className="modal">
+                            <div className="modal-box">
+                              <h3 className="font-bold text-lg">
+                                Comment on this post
+                              </h3>
+                              <textarea
+                                className="border border-dark-green mt-2"
+                                name="comments"
+                                id="comments"
+                              ></textarea>
+                              <div className="modal-action">
+                                <form method="dialog" className="w-full">
+                                  {/* if there is a button in form, it will close the modal */}
+                                  <button
+                                    onClick={() => handleCommentsSubmit(item)}
+                                    className="bg-primary-orange px-4 py-2 rounded-md text-sm flex"
+                                  >
+                                    Submit
+                                  </button>
+                                </form>
+                              </div>
+                            </div>
+                          </dialog>
                         </div>
                       </div>
                     </div>
